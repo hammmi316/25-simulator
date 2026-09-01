@@ -1,11 +1,17 @@
 window.JGB_GAME = (function(){
   "use strict";
   var BASE_P = 0.005;
-  var PITY_STEP = 0.47;
-  var CAP_FAILS = Math.ceil(100 / PITY_STEP);
-  var GUARANTEED_TRY = CAP_FAILS + 1;
-  var AVG_TRIES = 131.5822;
-  var JANGIBAEK_RATE = 34.3808;
+  var P_STEP = 0.0005;
+  var P_CAP = 0.01;
+  var GAUGE_DIVISOR = 2.15;
+  var CAP_FAILS = 218;
+  var GUARANTEED_TRY = 219;
+  var AVG_TRIES = 91.3209;
+  var JANGIBAEK_RATE = 11.4952;
+
+  function pAt(attemptNumber){
+    return Math.min(P_CAP, BASE_P + (attemptNumber - 1) * P_STEP);
+  }
 
   function getRun(){
     try{
@@ -32,10 +38,12 @@ window.JGB_GAME = (function(){
   }
   function attemptOnce(run){
     run.tries++;
-    var success = (run.gauge >= 100) || (Math.random() < BASE_P);
+    var p = pAt(run.tries);
+    var success = (run.gauge >= 100) || (Math.random() < p);
     if(!success){
       var before = run.gauge;
-      run.gauge = Math.min(100, run.gauge + PITY_STEP);
+      var gain = (p * 100) / GAUGE_DIVISOR;
+      run.gauge = Math.min(100, run.gauge + gain);
       run.lastDelta = run.gauge - before;
     }else{
       run.lastDelta = 0;
@@ -46,7 +54,7 @@ window.JGB_GAME = (function(){
   function resolveAuto(run){
     var success = false;
     var guard = 0;
-    while(!success && guard < 100000){
+    while(!success && guard < 1000){
       success = attemptOnce(run);
       guard++;
     }
@@ -56,16 +64,19 @@ window.JGB_GAME = (function(){
     var survive = 1, cdf = 0;
     var n = Math.min(tries, CAP_FAILS);
     for(var k=1; k<=n; k++){
-      cdf += survive * BASE_P;
-      survive *= (1 - BASE_P);
+      var p = pAt(k);
+      cdf += survive * p;
+      survive *= (1 - p);
     }
     if(tries >= GUARANTEED_TRY) cdf = 1;
     return cdf * 100;
   }
 
   return {
-    BASE_P: BASE_P, PITY_STEP: PITY_STEP, CAP_FAILS: CAP_FAILS, GUARANTEED_TRY: GUARANTEED_TRY,
+    BASE_P: BASE_P, P_STEP: P_STEP, P_CAP: P_CAP, GAUGE_DIVISOR: GAUGE_DIVISOR,
+    CAP_FAILS: CAP_FAILS, GUARANTEED_TRY: GUARANTEED_TRY,
     AVG_TRIES: AVG_TRIES, JANGIBAEK_RATE: JANGIBAEK_RATE,
+    pAt: pAt,
     getRun: getRun, setRun: setRun, startRun: startRun, getOrStartRun: getOrStartRun,
     attemptOnce: attemptOnce, resolveAuto: resolveAuto, percentile: percentile
   };
