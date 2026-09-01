@@ -1,0 +1,94 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+
+*{box-sizing:border-box;}
+html,body{margin:0; height:100%;}
+:root{
+  --btn-bg:linear-gradient(180deg, #3f4b59 0%, #303d4d 100%);
+  --btn-bg-hover:linear-gradient(180deg, #4d6071 0%, #3f5062 100%);
+  --font:'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Malgun Gothic', sans-serif;
+}
+body{
+  background:#0c0d10;
+  color:#f1ece1;
+  font-family:var(--font);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---- scaling stage ----
+   .frame keeps a fixed 393:852 ratio always. Everything inside is sized
+   in cqw (percent of the frame's own width), so scaling the frame up for
+   desktop enlarges the whole mobile layout without changing its proportions. */
+.viewport{
+  width:100vw; height:100dvh;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+}
+.frame{
+  position:relative;
+  height:min(100dvh, 100vw * 852 / 393);
+  aspect-ratio:393 / 852;
+  background:#181a1d;
+  overflow:hidden;
+  container-type:size;
+  box-shadow:0 40px 120px -40px rgba(0,0,0,0.8);
+}
+
+.logo{
+  position:absolute;
+  left:33.524cqw; top:14.885cqw;
+  width:33.079cqw; height:8.270cqw;
+  object-fit:contain;
+}
+
+.title{
+  position:absolute;
+  left:0; top:29.262cqw;
+  width:100cqw;
+  margin:0;
+  text-align:center;
+  font-weight:800;
+  font-size:8.143cqw;
+  line-height:1.15;
+  color:#fafbfb;
+  text-shadow:0 0.254cqw 0 rgba(0,0,0,0.25), 0 0.509cqw 3.690cqw rgba(20,157,255,0.95);
+}
+
+.credit{
+  position:absolute;
+  left:0; top:171.8cqw;
+  width:100cqw;
+  text-align:center;
+  font-size:3.053cqw;
+  color:#8d8d8d;
+  text-shadow:0 0.509cqw 0.509cqw rgba(0,0,0,0.25);
+}
+
+.actions{
+  position:absolute;
+  left:5.089cqw; right:5.089cqw; top:182.463cqw;
+  height:24.173cqw;
+  display:flex;
+  gap:4.071cqw;
+}
+.action-btn{
+  flex:1;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:1.527cqw;
+  border:none; cursor:pointer;
+  border-radius:0;
+  background:var(--btn-bg);
+  box-shadow:inset 0 0.254cqw 0.509cqw rgba(255,255,255,0.25);
+  color:#dedede;
+  font-family:inherit;
+  padding:0;
+}
+.action-btn:hover{ background:var(--btn-bg-hover); }
+.action-btn:active{ transform:translateY(1px) scale(0.99); }
+.action-btn img{
+  width:10.178cqw; height:10.178cqw;
+  object-fit:contain;
+}
+.action-btn span{
+  font-size:4.071cqw; font-weight:500;
+  text-shadow:0 0.509cqw 0.509cqw rgba(0,0,0,0.25);
+}

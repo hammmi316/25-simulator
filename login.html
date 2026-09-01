@@ -1,0 +1,240 @@
+<title>로그인 - 무기 25강 시뮬레이터</title>
+<script>
+  if (sessionStorage.getItem('jgb_session')) { location.href = 'forge.html'; }
+</script>
+<link rel="stylesheet" href="assets/common.css" />
+<style>
+  .frame{ background:#08070a; }
+
+  .section-title{
+    position:absolute;
+    left:0; top:67.703cqw;
+    width:100cqw;
+    margin:0;
+    text-align:center;
+    font-weight:700;
+    font-size:5.089cqw;
+    color:#fff8e6;
+  }
+
+  .divider-gfx{
+    position:absolute;
+    left:-25.318cqw; top:62.086cqw;
+    width:150.636cqw; height:26.845cqw;
+    pointer-events:none;
+  }
+
+  .form{
+    position:absolute;
+    left:5.089cqw; top:86.260cqw;
+    width:89.822cqw;
+    display:flex; flex-direction:column;
+    gap:2.036cqw;
+  }
+  .field{
+    position:relative;
+    z-index:1;
+    height:13.235cqw;
+    background:#1f242b;
+    display:flex; align-items:center;
+    padding:0 4.071cqw;
+  }
+  .field.open{ z-index:30; }
+  .field.open .select-field svg{ transform:rotate(180deg); }
+  .field.nick-field{
+    box-shadow:inset 1.527cqw 1.527cqw 1.018cqw rgba(0,0,0,0.4);
+    border:0.509cqw solid transparent;
+    transition:border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .field.nick-field:focus-within{
+    border-color:#cfe3ff;
+    box-shadow:inset 1.527cqw 1.527cqw 1.018cqw rgba(0,0,0,0.4), 0 0 0 0.763cqw rgba(207,227,255,0.25);
+  }
+  .nick-input{
+    width:100%; height:100%;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:#dedede;
+    font-family:inherit;
+    font-size:4.071cqw;
+    padding:0;
+  }
+  .nick-input::placeholder{ color:#778484; }
+  .select-field{
+    width:100%; background:none; border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:space-between;
+    color:#dedede;
+    font-family:inherit;
+    font-size:4.071cqw;
+    padding:0;
+  }
+  .select-field svg{
+    width:3.181cqw; height:1.813cqw; flex:none;
+  }
+  .dropdown-panel{
+    position:absolute;
+    left:0; right:0; top:calc(100% + 0.763cqw);
+    max-height:47.837cqw;
+    overflow-y:auto;
+    background:#1f242b;
+    border:0.254cqw solid #333c46;
+    box-shadow:0 1.018cqw 2.036cqw rgba(0,0,0,0.5);
+    margin:0; padding:0.509cqw 0;
+    list-style:none;
+  }
+  .dropdown-panel[hidden]{ display:none; }
+  .dropdown-option{
+    display:block; width:100%;
+    background:none; border:none; cursor:pointer;
+    text-align:left;
+    color:#dedede;
+    font-family:inherit;
+    font-size:4.071cqw;
+    padding:2.545cqw 4.071cqw;
+  }
+  .dropdown-option:hover, .dropdown-option:focus-visible{
+    background:#303945;
+    outline:none;
+  }
+
+  .enter-btn{
+    position:absolute;
+    left:5.089cqw; top:138.166cqw;
+    width:89.822cqw; height:16.539cqw;
+    border:none; cursor:pointer;
+    background:var(--btn-bg);
+    box-shadow:inset 0 0.254cqw 0.509cqw rgba(255,255,255,0.25);
+    color:#dedede;
+    font-family:inherit;
+    font-size:5.089cqw; font-weight:500;
+    text-shadow:0 0.509cqw 0.509cqw rgba(0,0,0,0.25);
+  }
+  .enter-btn:hover{ background:var(--btn-bg-hover); }
+  .enter-btn:active{ transform:translateY(1px) scale(0.995); }
+</style>
+
+<div class="viewport">
+  <div class="frame">
+    <img class="logo" src="assets/logo.png" alt="Lost Ark" />
+    <h1 class="title">무기 25강 시뮬레이터</h1>
+
+    <h2 class="section-title">로그인</h2>
+    <img class="divider-gfx" src="assets/divider.png" alt="" />
+
+    <div class="form">
+      <div class="field nick-field">
+        <input class="nick-input" id="nickInput" type="text" maxlength="12" placeholder="닉네임 입력" autocomplete="off" />
+      </div>
+      <div class="field" id="serverField">
+        <button class="select-field" id="serverSelect" type="button">
+          <span id="serverLabel">서버 선택</span>
+          <svg viewBox="0 0 25 15" fill="none"><path d="M2 2L12.5 12L23 2" stroke="#dedede" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <ul class="dropdown-panel" id="serverPanel" hidden></ul>
+      </div>
+      <div class="field" id="classField">
+        <button class="select-field" id="classSelect" type="button">
+          <span id="classLabel">직업 선택</span>
+          <svg viewBox="0 0 25 15" fill="none"><path d="M2 2L12.5 12L23 2" stroke="#dedede" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <ul class="dropdown-panel" id="classPanel" hidden></ul>
+      </div>
+    </div>
+
+    <button class="enter-btn" id="enterBtn">입장</button>
+
+    <p class="credit">made by. 따순미</p>
+    <div class="actions">
+      <button class="action-btn" id="homeBtn">
+        <img src="assets/icon-home.png" alt="" />
+        <span>처음으로</span>
+      </button>
+      <button class="action-btn" id="rankBtn">
+        <img src="assets/icon-rank.png" alt="" />
+        <span>순위보기</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var SERVERS = ['카마인','니나브','카제로스','아브렐슈드','실리안','아만','루페온']
+    .sort(function(a,b){ return a.localeCompare(b,'ko'); });
+
+  var CLASSES = ['버서커','디스트로이어','워로드','홀리나이트','슬레이어','발키리','배틀마스터',
+    '인파이터','기공사','창술사','스트라이커','브레이커','데빌헌터','블래스터','호크아이',
+    '스카우터','건슬링어','아르카나','서머너','바드','소서리스','데모닉','블레이드','리퍼',
+    '소울이터','도화가','기상술사','환수사','차원술사','가디언나이트'];
+
+  function setupDropdown(fieldId, btnId, panelId, labelId, options){
+    var field = document.getElementById(fieldId);
+    var btn = document.getElementById(btnId);
+    var panel = document.getElementById(panelId);
+    var label = document.getElementById(labelId);
+
+    options.forEach(function(name){
+      var li = document.createElement('li');
+      var opt = document.createElement('button');
+      opt.type = 'button';
+      opt.className = 'dropdown-option';
+      opt.textContent = name;
+      opt.addEventListener('click', function(){
+        label.textContent = name;
+        closeDropdown(field, panel);
+      });
+      li.appendChild(opt);
+      panel.appendChild(li);
+    });
+
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var isOpen = !panel.hidden;
+      closeAllDropdowns();
+      if(!isOpen) openDropdown(field, panel);
+    });
+
+    return { field: field, panel: panel };
+  }
+
+  function openDropdown(field, panel){
+    panel.hidden = false;
+    field.classList.add('open');
+  }
+  function closeDropdown(field, panel){
+    panel.hidden = true;
+    field.classList.remove('open');
+  }
+  function closeAllDropdowns(){
+    dropdowns.forEach(function(d){ closeDropdown(d.field, d.panel); });
+  }
+
+  var dropdowns = [
+    setupDropdown('serverField','serverSelect','serverPanel','serverLabel', SERVERS),
+    setupDropdown('classField','classSelect','classPanel','classLabel', CLASSES)
+  ];
+
+  document.addEventListener('click', closeAllDropdowns);
+
+  document.getElementById('homeBtn').addEventListener('click', function(){
+    location.href = 'index.html';
+  });
+  document.getElementById('rankBtn').addEventListener('click', function(){
+    // TODO: 순위보기 화면 연결
+  });
+  document.getElementById('enterBtn').addEventListener('click', function(){
+    var nickInput = document.getElementById('nickInput');
+    var nickname = nickInput.value.trim();
+    if(!nickname){ nickInput.focus(); return; }
+    sessionStorage.setItem('jgb_session', JSON.stringify({
+      nickname: nickname,
+      server: document.getElementById('serverLabel').textContent,
+      job: document.getElementById('classLabel').textContent
+    }));
+    location.href = 'forge.html';
+  });
+})();
+</script>

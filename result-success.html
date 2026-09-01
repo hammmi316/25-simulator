@@ -1,0 +1,95 @@
+<title>재련 성공 - 무기 25강 시뮬레이터</title>
+<script>
+  if (!sessionStorage.getItem('jgb_session') || !sessionStorage.getItem('jgb_run')) { location.href = 'forge.html'; }
+</script>
+<link rel="stylesheet" href="assets/common.css" />
+<script src="assets/game.js"></script>
+<style>
+  .frame{ background:#08070a; }
+
+  .art-hero{
+    position:absolute;
+    left:0.064cqw; top:3.562cqw;
+    width:94.280cqw; height:133.588cqw;
+    object-fit:contain;
+  }
+  .top-fade{
+    position:absolute; left:0; top:0;
+    width:100cqw; height:8.270cqw;
+    background:linear-gradient(to bottom, transparent 0%, #060606 6.73%);
+  }
+  .bottom-panel{
+    position:absolute; left:0; top:122.771cqw; right:0; bottom:0;
+    background:#08070a;
+  }
+
+  .stat{
+    position:absolute;
+    left:0; width:100cqw;
+    margin:0;
+    text-align:center;
+    font-weight:700;
+    color:#dedede;
+    text-shadow:0 1.018cqw 1.018cqw rgba(0,0,0,0.25);
+  }
+  #gaugeStat{ top:116.680cqw; font-size:4.071cqw; }
+  #triesStat{ top:136.029cqw; font-size:5.089cqw; }
+  #percentileStat{ top:144.415cqw; font-size:5.089cqw; }
+  #summaryStat{
+    top:162.341cqw; font-size:3.562cqw; font-weight:400;
+    color:#8c8c8c; line-height:1.5;
+  }
+</style>
+
+<div class="viewport">
+  <div class="frame">
+    <img class="art-hero" src="assets/success-hero.png" alt="" />
+    <div class="bottom-panel"></div>
+    <div class="top-fade"></div>
+
+    <p class="stat" id="gaugeStat"></p>
+    <p class="stat" id="triesStat"></p>
+    <p class="stat" id="percentileStat"></p>
+    <p class="stat" id="summaryStat"></p>
+
+    <p class="credit">made by. 따순미</p>
+    <div class="actions">
+      <button class="action-btn" id="retryBtn">
+        <img src="assets/icon-retry.png" alt="" />
+        <span>다시하기</span>
+      </button>
+      <button class="action-btn" id="rankBtn">
+        <img src="assets/icon-rank.png" alt="" />
+        <span>순위보기</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var G = window.JGB_GAME;
+  var run = G.getRun();
+  if(run){
+    var pct = G.percentile(run.tries);
+    document.getElementById('gaugeStat').textContent =
+      '장인의 기운 ' + run.gauge.toFixed(2) + '%를 쌓고 강화에 성공했습니다!';
+    document.getElementById('triesStat').textContent =
+      '강화 시도 횟수 ' + run.tries + '회';
+    document.getElementById('percentileStat').textContent =
+      '전체 상위 ' + pct.toFixed(1) + '%';
+    document.getElementById('summaryStat').textContent =
+      '평균 강화 시도 횟수는 ' + Math.round(G.AVG_TRIES) + '회, ' +
+      '전체 장기백 비율은 ' + G.JANGIBAEK_RATE.toFixed(1) + '% 입니다.';
+  }
+
+  document.getElementById('retryBtn').addEventListener('click', function(){
+    sessionStorage.removeItem('jgb_run');
+    location.href = 'forge.html';
+  });
+  document.getElementById('rankBtn').addEventListener('click', function(){
+    // TODO: 순위보기 화면 연결
+  });
+})();
+</script>
