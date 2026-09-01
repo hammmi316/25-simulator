@@ -1,5 +1,6 @@
 window.JGB_GAME = (function(){
   "use strict";
+  var GOLD_PER_TRY = 100000;
   var BASE_P = 0.005;
   var P_STEP = 0.0005;
   var P_CAP = 0.01;
@@ -73,6 +74,7 @@ window.JGB_GAME = (function(){
   }
 
   return {
+    GOLD_PER_TRY: GOLD_PER_TRY,
     BASE_P: BASE_P, P_STEP: P_STEP, P_CAP: P_CAP, GAUGE_DIVISOR: GAUGE_DIVISOR,
     CAP_FAILS: CAP_FAILS, GUARANTEED_TRY: GUARANTEED_TRY,
     AVG_TRIES: AVG_TRIES, JANGIBAEK_RATE: JANGIBAEK_RATE,

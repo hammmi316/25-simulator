@@ -7,20 +7,11 @@
 <style>
   .frame{ background:#08070a; }
 
-  .art-hero{
+  .art-composite{
     position:absolute;
-    left:0.064cqw; top:3.562cqw;
-    width:94.280cqw; height:133.588cqw;
-    object-fit:contain;
-  }
-  .top-fade{
-    position:absolute; left:0; top:0;
-    width:100cqw; height:8.270cqw;
-    background:linear-gradient(to bottom, transparent 0%, #060606 6.73%);
-  }
-  .bottom-panel{
-    position:absolute; left:0; top:122.771cqw; right:0; bottom:0;
-    background:#08070a;
+    left:0; top:0;
+    width:100.064cqw; height:140.070cqw;
+    object-fit:fill;
   }
 
   .stat{
@@ -32,9 +23,10 @@
     color:#dedede;
     text-shadow:0 1.018cqw 1.018cqw rgba(0,0,0,0.25);
   }
-  #gaugeStat{ top:116.680cqw; font-size:4.071cqw; }
-  #triesStat{ top:136.029cqw; font-size:5.089cqw; }
-  #percentileStat{ top:144.415cqw; font-size:5.089cqw; }
+  #gaugeStat{ top:111.450cqw; font-size:4.071cqw; }
+  #triesStat{ top:130.789cqw; font-size:5.089cqw; }
+  #percentileStat{ top:139.186cqw; font-size:5.089cqw; }
+  #goldStat{ top:147.583cqw; font-size:5.089cqw; }
   #summaryStat{
     top:162.341cqw; font-size:3.562cqw; font-weight:400;
     color:#8c8c8c; line-height:1.5;
@@ -43,13 +35,12 @@
 
 <div class="viewport">
   <div class="frame">
-    <img class="art-hero" src="assets/success-hero.png" alt="" />
-    <div class="bottom-panel"></div>
-    <div class="top-fade"></div>
+    <img class="art-composite" src="assets/success-composite.png" alt="" />
 
     <p class="stat" id="gaugeStat"></p>
     <p class="stat" id="triesStat"></p>
     <p class="stat" id="percentileStat"></p>
+    <p class="stat" id="goldStat"></p>
     <p class="stat" id="summaryStat"></p>
 
     <p class="credit">made by. 따순미</p>
@@ -79,6 +70,8 @@
       '강화 시도 횟수 ' + run.tries + '회';
     document.getElementById('percentileStat').textContent =
       '전체 상위 ' + pct.toFixed(1) + '%';
+    document.getElementById('goldStat').textContent =
+      '총 사용 골드 ' + (run.tries * G.GOLD_PER_TRY).toLocaleString() + 'G';
     document.getElementById('summaryStat').textContent =
       '평균 강화 시도 횟수는 ' + Math.round(G.AVG_TRIES) + '회, ' +
       '전체 장기백 비율은 ' + G.JANGIBAEK_RATE.toFixed(1) + '% 입니다.';
