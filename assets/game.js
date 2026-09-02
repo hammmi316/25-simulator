@@ -1,6 +1,6 @@
 window.JGB_GAME = (function(){
   "use strict";
-  var GOLD_PER_TRY = 100000;
+  var GOLD_PER_TRY = 63579;
   var BASE_P = 0.005;
   var P_STEP = 0.0005;
   var P_CAP = 0.01;
@@ -61,6 +61,29 @@ window.JGB_GAME = (function(){
     }
     return run;
   }
+  var LEADERBOARD_KEY = 'jgb_leaderboard';
+  function getLeaderboard(){
+    try{
+      var raw = localStorage.getItem(LEADERBOARD_KEY);
+      var list = raw ? JSON.parse(raw) : [];
+      list.sort(function(a,b){ return a.tries - b.tries; });
+      return list;
+    }catch(e){ return []; }
+  }
+  function submitResult(entry){
+    var list = getLeaderboard();
+    var idx = list.findIndex(function(e){
+      return e.nickname === entry.nickname && e.server === entry.server;
+    });
+    if(idx === -1){
+      list.push(entry);
+    }else if(entry.tries < list[idx].tries){
+      list[idx] = entry;
+    }
+    list.sort(function(a,b){ return a.tries - b.tries; });
+    try{ localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(list)); }catch(e){}
+  }
+
   function percentile(tries){
     var survive = 1, cdf = 0;
     var n = Math.min(tries, CAP_FAILS);
@@ -80,6 +103,7 @@ window.JGB_GAME = (function(){
     AVG_TRIES: AVG_TRIES, JANGIBAEK_RATE: JANGIBAEK_RATE,
     pAt: pAt,
     getRun: getRun, setRun: setRun, startRun: startRun, getOrStartRun: getOrStartRun,
-    attemptOnce: attemptOnce, resolveAuto: resolveAuto, percentile: percentile
+    attemptOnce: attemptOnce, resolveAuto: resolveAuto, percentile: percentile,
+    getLeaderboard: getLeaderboard, submitResult: submitResult
   };
 })();

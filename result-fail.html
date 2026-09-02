@@ -62,8 +62,9 @@
     font-weight:700;
     font-size:4.071cqw;
     color:#dedede;
-    text-shadow:0 1.018cqw 1.018cqw rgba(0,0,0,0.25);
+    text-shadow:0 0.509cqw 0.509cqw rgba(0,0,0,0.25);
   }
+  .gauge-msg .delta{ color:#b4953a; }
 
   .confirm-btn{
     position:absolute;
@@ -116,15 +117,15 @@
   "use strict";
   var run = window.JGB_GAME.getRun();
   if(run){
-    document.getElementById('gaugeMsg').textContent =
-      '장인의 기운 +' + run.lastDelta.toFixed(2) + '% 상승';
+    document.getElementById('gaugeMsg').innerHTML =
+      '장인의 기운<span class="delta"> +' + run.lastDelta.toFixed(2) + '% 상승</span>';
   }
 
   document.getElementById('homeBtn').addEventListener('click', function(){
     location.href = 'index.html';
   });
   document.getElementById('rankBtn').addEventListener('click', function(){
-    // TODO: 순위보기 화면 연결
+    location.href = 'rank.html';
   });
   document.getElementById('confirmBtn').addEventListener('click', function(){
     location.href = 'forge.html';

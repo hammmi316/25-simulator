@@ -21,12 +21,17 @@
     text-align:center;
     font-weight:700;
     color:#dedede;
-    text-shadow:0 1.018cqw 1.018cqw rgba(0,0,0,0.25);
+    text-shadow:0 0.509cqw 0.509cqw rgba(0,0,0,0.25);
   }
-  #gaugeStat{ top:111.450cqw; font-size:4.071cqw; }
-  #triesStat{ top:130.789cqw; font-size:5.089cqw; }
-  #percentileStat{ top:139.186cqw; font-size:5.089cqw; }
-  #goldStat{ top:147.583cqw; font-size:5.089cqw; }
+  #gaugeStat{ top:111.450cqw; font-size:4.071cqw; line-height:1.5; }
+  #gaugeStat .reg{ font-weight:400; }
+  #triesStat, #percentileStat, #goldStat{
+    font-size:5.089cqw;
+    text-shadow:0 0.509cqw 0.509cqw rgba(0,0,0,0.25), 0 0.509cqw 3.690cqw rgba(20,157,255,0.95);
+  }
+  #triesStat{ top:130.789cqw; }
+  #percentileStat{ top:139.186cqw; }
+  #goldStat{ top:147.583cqw; }
   #summaryStat{
     top:162.341cqw; font-size:3.562cqw; font-weight:400;
     color:#8c8c8c; line-height:1.5;
@@ -63,17 +68,29 @@
   var G = window.JGB_GAME;
   var run = G.getRun();
   if(run){
+    var session = null;
+    try{ session = JSON.parse(sessionStorage.getItem('jgb_session') || 'null'); }catch(e){}
+    if(session && session.nickname){
+      G.submitResult({
+        nickname: session.nickname,
+        server: session.server,
+        job: session.job,
+        tries: run.tries,
+        gauge: run.gauge
+      });
+    }
     var pct = G.percentile(run.tries);
-    document.getElementById('gaugeStat').textContent =
-      '장인의 기운 ' + run.gauge.toFixed(2) + '%를 쌓고 강화에 성공했습니다!';
+    document.getElementById('gaugeStat').innerHTML =
+      '장인의 기운 ' + run.gauge.toFixed(2) + '%<span class="reg">를 쌓고</span><br>' +
+      '<span class="reg">강화에 성공했습니다!</span>';
     document.getElementById('triesStat').textContent =
       '강화 시도 횟수 ' + run.tries + '회';
     document.getElementById('percentileStat').textContent =
       '전체 상위 ' + pct.toFixed(1) + '%';
     document.getElementById('goldStat').textContent =
       '총 사용 골드 ' + (run.tries * G.GOLD_PER_TRY).toLocaleString() + 'G';
-    document.getElementById('summaryStat').textContent =
-      '평균 강화 시도 횟수는 ' + Math.round(G.AVG_TRIES) + '회, ' +
+    document.getElementById('summaryStat').innerHTML =
+      '평균 강화 시도 횟수는 ' + Math.round(G.AVG_TRIES) + '회,<br>' +
       '전체 장기백 비율은 ' + G.JANGIBAEK_RATE.toFixed(1) + '% 입니다.';
   }
 
@@ -82,7 +99,7 @@
     location.href = 'forge.html';
   });
   document.getElementById('rankBtn').addEventListener('click', function(){
-    // TODO: 순위보기 화면 연결
+    location.href = 'rank.html';
   });
 })();
 </script>

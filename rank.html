@@ -1,0 +1,241 @@
+<title>전체 순위 - 무기 25강 시뮬레이터</title>
+<link rel="stylesheet" href="assets/common.css" />
+<script src="assets/game.js"></script>
+<style>
+  .frame{ background:#08070a; }
+
+  .rank-title{
+    position:absolute;
+    left:0; top:14.885cqw;
+    width:100cqw;
+    margin:0;
+    text-align:center;
+    font-weight:700;
+    font-size:5.089cqw;
+    color:#dedede;
+    text-shadow:0 0.509cqw 0.509cqw rgba(0,0,0,0.25);
+  }
+  .rank-summary{
+    position:absolute;
+    left:0; top:26.590cqw;
+    width:100cqw;
+    margin:0;
+    text-align:center;
+    font-weight:500;
+    font-size:3.563cqw;
+    line-height:1.5;
+    color:#8c8c8c;
+    text-shadow:0 0.509cqw 0.509cqw rgba(0,0,0,0.25);
+  }
+
+  .rank-table{
+    position:absolute;
+    left:5.089cqw; top:41.349cqw;
+    width:89.822cqw;
+  }
+  .rank-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:1.018cqw;
+    height:10.178cqw;
+    color:#dedede;
+    font-size:2.799cqw;
+    text-shadow:0 0.509cqw 0.509cqw rgba(0,0,0,0.25);
+  }
+  .rank-row.header{ background:#28292e; font-weight:400; }
+  .rank-row.me{ background:rgba(255,255,255,0.1); }
+  .rank-row .div{ width:1.018cqw; text-align:center; color:#636363; flex:none; }
+  .rank-row.header .div{ color:#dedede; }
+  .col-rank{ width:5.344cqw; flex:none; text-align:center; }
+  .col-nick{
+    display:flex; align-items:center; gap:0.509cqw;
+    width:36.514cqw; flex:none;
+  }
+  .col-nick img{ width:5.089cqw; height:5.089cqw; object-fit:contain; flex:none; }
+  .col-nick span{
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .col-server{ width:12.977cqw; flex:none; text-align:center; }
+  .col-tries{ width:11.196cqw; flex:none; text-align:center; }
+  .col-jangi{ width:7.125cqw; flex:none; text-align:center; }
+  .rank-empty{
+    display:flex; align-items:center; justify-content:center;
+    height:20.356cqw;
+    color:#636363;
+    font-size:3.053cqw;
+  }
+
+  .pagination{
+    position:absolute;
+    left:50%; top:167.557cqw;
+    transform:translateX(-50%);
+    display:flex; align-items:center;
+    gap:4.071cqw;
+  }
+  .page-arrow{
+    display:flex; align-items:center; justify-content:center;
+    width:5.089cqw; height:5.089cqw;
+    background:none; border:none; cursor:pointer; padding:0;
+  }
+  .page-arrow svg{ width:5.089cqw; height:2.290cqw; }
+  .page-arrow:disabled{ opacity:0.3; cursor:default; }
+  .page-num{
+    width:4.835cqw;
+    padding:1.272cqw 0;
+    background:none; border:none; cursor:pointer;
+    font-family:inherit;
+    font-weight:500;
+    font-size:3.563cqw;
+    color:#616161;
+    text-shadow:0 0.509cqw 0.509cqw rgba(0,0,0,0.25);
+  }
+  .page-num.current{ font-weight:700; color:#dedede; }
+</style>
+
+<div class="viewport">
+  <div class="frame">
+    <h1 class="rank-title">전체 순위</h1>
+    <p class="rank-summary" id="rankSummary"></p>
+
+    <div class="rank-table" id="rankTable">
+      <div class="rank-row header">
+        <div class="col-rank">순위</div>
+        <div class="div">|</div>
+        <div class="col-nick">닉네임</div>
+        <div class="div">|</div>
+        <div class="col-server">서버</div>
+        <div class="div">|</div>
+        <div class="col-tries">시도 횟수</div>
+        <div class="div">|</div>
+        <div class="col-jangi">장기</div>
+      </div>
+      <div id="rankMeRow"></div>
+      <div id="rankRows"></div>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+
+    <div class="actions">
+      <button class="action-btn" id="homeBtn">
+        <img src="assets/icon-home.png" alt="" />
+        <span>처음으로</span>
+      </button>
+      <button class="action-btn" id="retryBtn">
+        <img src="assets/icon-retry.png" alt="" />
+        <span>다시하기</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var G = window.JGB_GAME;
+  var PAGE_SIZE = 10;
+  var MAX_RANK = 999;
+
+  var params = new URLSearchParams(location.search);
+  var page = parseInt(params.get('page'), 10);
+  if(!page || page < 1) page = 1;
+
+  var list = G.getLeaderboard().slice(0, MAX_RANK);
+  var totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+  if(page > totalPages) page = totalPages;
+
+  document.getElementById('rankSummary').innerHTML =
+    '평균 강화 시도 횟수는 ' + Math.round(G.AVG_TRIES) + '회,<br>' +
+    '전체 장기백 비율은 ' + G.JANGIBAEK_RATE.toFixed(1) + '% 입니다.';
+
+  function iconSrc(job){
+    return 'assets/icons/' + encodeURIComponent(job || '') + '.png';
+  }
+
+  function makeRow(rankNum, entry, isMe){
+    var row = document.createElement('div');
+    row.className = 'rank-row' + (isMe ? ' me' : '');
+    row.innerHTML =
+      '<div class="col-rank">' + rankNum + '</div>' +
+      '<div class="div">|</div>' +
+      '<div class="col-nick"><img src="' + iconSrc(entry.job) + '" alt="" onerror="this.style.visibility=\'hidden\'" />' +
+        '<span>' + entry.nickname + '</span></div>' +
+      '<div class="div">|</div>' +
+      '<div class="col-server">' + entry.server + '</div>' +
+      '<div class="div">|</div>' +
+      '<div class="col-tries">' + entry.tries + '회</div>' +
+      '<div class="div">|</div>' +
+      '<div class="col-jangi">' + Math.round(entry.gauge) + '%</div>';
+    return row;
+  }
+
+  var session = null;
+  try{ session = JSON.parse(sessionStorage.getItem('jgb_session') || 'null'); }catch(e){}
+
+  var meRowEl = document.getElementById('rankMeRow');
+  if(session && session.nickname){
+    var myIndex = list.findIndex(function(e){
+      return e.nickname === session.nickname && e.server === session.server;
+    });
+    if(myIndex !== -1){
+      meRowEl.appendChild(makeRow(myIndex + 1, list[myIndex], true));
+    }
+  }
+
+  var rowsEl = document.getElementById('rankRows');
+  if(list.length === 0){
+    var empty = document.createElement('div');
+    empty.className = 'rank-empty';
+    empty.textContent = '아직 순위 기록이 없습니다.';
+    rowsEl.appendChild(empty);
+  }else{
+    var start = (page - 1) * PAGE_SIZE;
+    var pageItems = list.slice(start, start + PAGE_SIZE);
+    pageItems.forEach(function(entry, i){
+      rowsEl.appendChild(makeRow(start + i + 1, entry, false));
+    });
+  }
+
+  function chevronSvg(){
+    return '<svg viewBox="0 0 25 15" fill="none"><path d="M2 2L12.5 12L23 2" stroke="#dedede" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  }
+
+  var pager = document.getElementById('pagination');
+  var winStart = Math.min(Math.max(page - 2, 1), Math.max(totalPages - 4, 1));
+  var winEnd = Math.min(winStart + 4, totalPages);
+
+  var prevBtn = document.createElement('button');
+  prevBtn.className = 'page-arrow';
+  prevBtn.style.transform = 'rotate(90deg)';
+  prevBtn.innerHTML = chevronSvg();
+  prevBtn.disabled = page <= 1;
+  prevBtn.addEventListener('click', function(){ location.href = 'rank.html?page=' + (page - 1); });
+  pager.appendChild(prevBtn);
+
+  for(var p = winStart; p <= winEnd; p++){
+    (function(p){
+      var btn = document.createElement('button');
+      btn.className = 'page-num' + (p === page ? ' current' : '');
+      btn.textContent = p;
+      btn.addEventListener('click', function(){ location.href = 'rank.html?page=' + p; });
+      pager.appendChild(btn);
+    })(p);
+  }
+
+  var nextBtn = document.createElement('button');
+  nextBtn.className = 'page-arrow';
+  nextBtn.style.transform = 'rotate(-90deg)';
+  nextBtn.innerHTML = chevronSvg();
+  nextBtn.disabled = page >= totalPages;
+  nextBtn.addEventListener('click', function(){ location.href = 'rank.html?page=' + (page + 1); });
+  pager.appendChild(nextBtn);
+
+  document.getElementById('homeBtn').addEventListener('click', function(){
+    location.href = 'index.html';
+  });
+  document.getElementById('retryBtn').addEventListener('click', function(){
+    sessionStorage.removeItem('jgb_run');
+    location.href = 'forge.html';
+  });
+})();
+</script>
