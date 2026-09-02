@@ -61,27 +61,30 @@ window.JGB_GAME = (function(){
     }
     return run;
   }
-  var LEADERBOARD_KEY = 'jgb_leaderboard';
+  var LEADERBOARD_COLLECTION = 'leaderboard';
+  function leaderboardDocId(nickname, server){
+    return encodeURIComponent(nickname) + '__' + encodeURIComponent(server);
+  }
   function getLeaderboard(){
-    try{
-      var raw = localStorage.getItem(LEADERBOARD_KEY);
-      var list = raw ? JSON.parse(raw) : [];
-      list.sort(function(a,b){ return a.tries - b.tries; });
-      return list;
-    }catch(e){ return []; }
+    return window.JGB_DB.collection(LEADERBOARD_COLLECTION)
+      .orderBy('tries', 'asc')
+      .limit(999)
+      .get()
+      .then(function(snap){
+        var list = [];
+        snap.forEach(function(doc){ list.push(doc.data()); });
+        return list;
+      })
+      .catch(function(e){ console.error('getLeaderboard failed', e); return []; });
   }
   function submitResult(entry){
-    var list = getLeaderboard();
-    var idx = list.findIndex(function(e){
-      return e.nickname === entry.nickname && e.server === entry.server;
-    });
-    if(idx === -1){
-      list.push(entry);
-    }else if(entry.tries < list[idx].tries){
-      list[idx] = entry;
-    }
-    list.sort(function(a,b){ return a.tries - b.tries; });
-    try{ localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(list)); }catch(e){}
+    var ref = window.JGB_DB.collection(LEADERBOARD_COLLECTION)
+      .doc(leaderboardDocId(entry.nickname, entry.server));
+    return ref.get().then(function(doc){
+      if(!doc.exists || entry.tries < doc.data().tries){
+        return ref.set(entry);
+      }
+    }).catch(function(e){ console.error('submitResult failed', e); });
   }
 
   function percentile(tries){

@@ -1,5 +1,8 @@
 <title>전체 순위 - 무기 25강 시뮬레이터</title>
 <link rel="stylesheet" href="assets/common.css" />
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="assets/firebase-init.js"></script>
 <script src="assets/game.js"></script>
 <style>
   .frame{ background:#08070a; }
@@ -140,10 +143,6 @@
   var page = parseInt(params.get('page'), 10);
   if(!page || page < 1) page = 1;
 
-  var list = G.getLeaderboard().slice(0, MAX_RANK);
-  var totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
-  if(page > totalPages) page = totalPages;
-
   document.getElementById('rankSummary').innerHTML =
     '평균 강화 시도 횟수는 ' + Math.round(G.AVG_TRIES) + '회,<br>' +
     '전체 장기백 비율은 ' + G.JANGIBAEK_RATE.toFixed(1) + '% 입니다.';
@@ -172,63 +171,69 @@
   var session = null;
   try{ session = JSON.parse(sessionStorage.getItem('jgb_session') || 'null'); }catch(e){}
 
-  var meRowEl = document.getElementById('rankMeRow');
-  if(session && session.nickname){
-    var myIndex = list.findIndex(function(e){
-      return e.nickname === session.nickname && e.server === session.server;
-    });
-    if(myIndex !== -1){
-      meRowEl.appendChild(makeRow(myIndex + 1, list[myIndex], true));
-    }
-  }
-
-  var rowsEl = document.getElementById('rankRows');
-  if(list.length === 0){
-    var empty = document.createElement('div');
-    empty.className = 'rank-empty';
-    empty.textContent = '아직 순위 기록이 없습니다.';
-    rowsEl.appendChild(empty);
-  }else{
-    var start = (page - 1) * PAGE_SIZE;
-    var pageItems = list.slice(start, start + PAGE_SIZE);
-    pageItems.forEach(function(entry, i){
-      rowsEl.appendChild(makeRow(start + i + 1, entry, false));
-    });
-  }
-
   function chevronSvg(){
     return '<svg viewBox="0 0 25 15" fill="none"><path d="M2 2L12.5 12L23 2" stroke="#dedede" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   }
 
-  var pager = document.getElementById('pagination');
-  var winStart = Math.min(Math.max(page - 2, 1), Math.max(totalPages - 4, 1));
-  var winEnd = Math.min(winStart + 4, totalPages);
+  G.getLeaderboard().then(function(fullList){
+    var list = fullList.slice(0, MAX_RANK);
+    var totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+    if(page > totalPages) page = totalPages;
 
-  var prevBtn = document.createElement('button');
-  prevBtn.className = 'page-arrow';
-  prevBtn.style.transform = 'rotate(90deg)';
-  prevBtn.innerHTML = chevronSvg();
-  prevBtn.disabled = page <= 1;
-  prevBtn.addEventListener('click', function(){ location.href = 'rank.html?page=' + (page - 1); });
-  pager.appendChild(prevBtn);
+    var meRowEl = document.getElementById('rankMeRow');
+    if(session && session.nickname){
+      var myIndex = list.findIndex(function(e){
+        return e.nickname === session.nickname && e.server === session.server;
+      });
+      if(myIndex !== -1){
+        meRowEl.appendChild(makeRow(myIndex + 1, list[myIndex], true));
+      }
+    }
 
-  for(var p = winStart; p <= winEnd; p++){
-    (function(p){
-      var btn = document.createElement('button');
-      btn.className = 'page-num' + (p === page ? ' current' : '');
-      btn.textContent = p;
-      btn.addEventListener('click', function(){ location.href = 'rank.html?page=' + p; });
-      pager.appendChild(btn);
-    })(p);
-  }
+    var rowsEl = document.getElementById('rankRows');
+    if(list.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'rank-empty';
+      empty.textContent = '아직 순위 기록이 없습니다.';
+      rowsEl.appendChild(empty);
+    }else{
+      var start = (page - 1) * PAGE_SIZE;
+      var pageItems = list.slice(start, start + PAGE_SIZE);
+      pageItems.forEach(function(entry, i){
+        rowsEl.appendChild(makeRow(start + i + 1, entry, false));
+      });
+    }
 
-  var nextBtn = document.createElement('button');
-  nextBtn.className = 'page-arrow';
-  nextBtn.style.transform = 'rotate(-90deg)';
-  nextBtn.innerHTML = chevronSvg();
-  nextBtn.disabled = page >= totalPages;
-  nextBtn.addEventListener('click', function(){ location.href = 'rank.html?page=' + (page + 1); });
-  pager.appendChild(nextBtn);
+    var pager = document.getElementById('pagination');
+    var winStart = Math.min(Math.max(page - 2, 1), Math.max(totalPages - 4, 1));
+    var winEnd = Math.min(winStart + 4, totalPages);
+
+    var prevBtn = document.createElement('button');
+    prevBtn.className = 'page-arrow';
+    prevBtn.style.transform = 'rotate(90deg)';
+    prevBtn.innerHTML = chevronSvg();
+    prevBtn.disabled = page <= 1;
+    prevBtn.addEventListener('click', function(){ location.href = 'rank.html?page=' + (page - 1); });
+    pager.appendChild(prevBtn);
+
+    for(var p = winStart; p <= winEnd; p++){
+      (function(p){
+        var btn = document.createElement('button');
+        btn.className = 'page-num' + (p === page ? ' current' : '');
+        btn.textContent = p;
+        btn.addEventListener('click', function(){ location.href = 'rank.html?page=' + p; });
+        pager.appendChild(btn);
+      })(p);
+    }
+
+    var nextBtn = document.createElement('button');
+    nextBtn.className = 'page-arrow';
+    nextBtn.style.transform = 'rotate(-90deg)';
+    nextBtn.innerHTML = chevronSvg();
+    nextBtn.disabled = page >= totalPages;
+    nextBtn.addEventListener('click', function(){ location.href = 'rank.html?page=' + (page + 1); });
+    pager.appendChild(nextBtn);
+  });
 
   document.getElementById('homeBtn').addEventListener('click', function(){
     location.href = 'index.html';
