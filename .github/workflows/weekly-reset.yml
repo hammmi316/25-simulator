@@ -1,0 +1,20 @@
+name: Weekly leaderboard reset
+
+on:
+  schedule:
+    # 01:00 UTC every Wednesday = 10:00 KST every Wednesday
+    - cron: "0 1 * * 3"
+  workflow_dispatch: {}
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --omit=dev
+      - run: npm run reset-leaderboard
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
