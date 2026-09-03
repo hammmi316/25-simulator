@@ -25,8 +25,8 @@
     <p class="credit">made by. 따순미</p>
     <div class="actions">
       <button class="action-btn" id="loginBtn">
-        <img src="assets/icon-login.png" alt="" />
-        <span>로그인</span>
+        <img id="loginBtnIcon" src="assets/icon-login.png" alt="" />
+        <span id="loginBtnLabel">로그인</span>
       </button>
       <button class="action-btn" id="rankBtn">
         <img src="assets/icon-rank.png" alt="" />
@@ -39,9 +39,21 @@
 <script>
 (function(){
   "use strict";
-  document.getElementById('loginBtn').addEventListener('click', function(){
-    location.href = 'login.html';
-  });
+  var loggedIn = !!sessionStorage.getItem('jgb_session');
+
+  if(loggedIn){
+    document.getElementById('loginBtnIcon').src = 'assets/icon-retry.png';
+    document.getElementById('loginBtnLabel').textContent = '다시하기';
+    document.getElementById('loginBtn').addEventListener('click', function(){
+      sessionStorage.removeItem('jgb_run');
+      location.href = 'forge.html';
+    });
+  }else{
+    document.getElementById('loginBtn').addEventListener('click', function(){
+      location.href = 'login.html';
+    });
+  }
+
   document.getElementById('rankBtn').addEventListener('click', function(){
     location.href = 'rank.html';
   });
