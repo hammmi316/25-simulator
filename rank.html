@@ -70,20 +70,21 @@
 
   .pagination{
     position:absolute;
-    left:50%; top:167.557cqw;
-    transform:translateX(-50%);
-    display:flex; align-items:center;
-    gap:4.071cqw;
+    left:5.089cqw; top:167.557cqw;
+    width:89.822cqw;
+    display:flex; align-items:center; justify-content:center;
+    gap:2.036cqw;
   }
   .page-arrow{
     display:flex; align-items:center; justify-content:center;
-    width:5.089cqw; height:5.089cqw;
+    width:5.089cqw; height:5.089cqw; flex:none;
     background:none; border:none; cursor:pointer; padding:0;
   }
   .page-arrow svg{ width:5.089cqw; height:2.290cqw; }
+  .page-arrow.jump svg{ width:2.545cqw; height:2.545cqw; }
   .page-arrow:disabled{ opacity:0.3; cursor:default; }
   .page-num{
-    width:4.835cqw;
+    width:4.835cqw; flex:none;
     padding:1.272cqw 0;
     background:none; border:none; cursor:pointer;
     font-family:inherit;
@@ -93,6 +94,14 @@
     text-shadow:0 0.509cqw 0.509cqw rgba(0,0,0,0.25);
   }
   .page-num.current{ font-weight:700; color:#dedede; }
+  .page-num.wide{ width:auto; padding:1.272cqw 1.272cqw; }
+  .page-ellipsis{
+    width:5.089cqw; flex:none;
+    text-align:center;
+    font-size:3.563cqw;
+    color:#616161;
+    text-shadow:0 0.509cqw 0.509cqw rgba(0,0,0,0.25);
+  }
 </style>
 
 <div class="viewport">
@@ -172,6 +181,13 @@
   function chevronSvg(){
     return '<svg viewBox="0 0 25 15" fill="none"><path d="M2 2L12.5 12L23 2" stroke="#dedede" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   }
+  function firstSvg(){
+    return '<svg viewBox="0 0 20 20" fill="none"><path d="M3 2V18" stroke="#dedede" stroke-width="2.5" stroke-linecap="round"/><path d="M17 3L8 10L17 17" stroke="#dedede" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  }
+  function lastSvg(){
+    return '<svg viewBox="0 0 20 20" fill="none"><path d="M17 2V18" stroke="#dedede" stroke-width="2.5" stroke-linecap="round"/><path d="M3 3L12 10L3 17" stroke="#dedede" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  }
+  function goToPage(p){ location.href = 'rank.html?page=' + p; }
 
   G.getLeaderboardCount().then(function(count){
     var totalPages = Math.max(1, Math.ceil(count / PAGE_SIZE));
@@ -206,25 +222,49 @@
     }
 
     var pager = document.getElementById('pagination');
-    var winStart = Math.min(Math.max(page - 2, 1), Math.max(totalPages - 4, 1));
-    var winEnd = Math.min(winStart + 4, totalPages);
+
+    function makePageBtn(p, wide){
+      var btn = document.createElement('button');
+      btn.className = 'page-num' + (p === page ? ' current' : '') + (wide ? ' wide' : '');
+      btn.textContent = p;
+      btn.addEventListener('click', function(){ goToPage(p); });
+      return btn;
+    }
+
+    var firstBtn = document.createElement('button');
+    firstBtn.className = 'page-arrow jump';
+    firstBtn.innerHTML = firstSvg();
+    firstBtn.disabled = page <= 1;
+    firstBtn.addEventListener('click', function(){ goToPage(1); });
+    pager.appendChild(firstBtn);
 
     var prevBtn = document.createElement('button');
     prevBtn.className = 'page-arrow';
     prevBtn.style.transform = 'rotate(90deg)';
     prevBtn.innerHTML = chevronSvg();
     prevBtn.disabled = page <= 1;
-    prevBtn.addEventListener('click', function(){ location.href = 'rank.html?page=' + (page - 1); });
+    prevBtn.addEventListener('click', function(){ goToPage(page - 1); });
     pager.appendChild(prevBtn);
 
-    for(var p = winStart; p <= winEnd; p++){
-      (function(p){
-        var btn = document.createElement('button');
-        btn.className = 'page-num' + (p === page ? ' current' : '');
-        btn.textContent = p;
-        btn.addEventListener('click', function(){ location.href = 'rank.html?page=' + p; });
-        pager.appendChild(btn);
-      })(p);
+    if(totalPages <= 5){
+      for(var p = 1; p <= totalPages; p++){
+        pager.appendChild(makePageBtn(p, false));
+      }
+    }else{
+      var winStart = Math.min(Math.max(page - 2, 1), totalPages - 4);
+      var winEnd = winStart + 4;
+
+      for(var p = winStart; p <= winEnd; p++){
+        pager.appendChild(makePageBtn(p, false));
+      }
+
+      if(winEnd < totalPages){
+        var ellipsis = document.createElement('span');
+        ellipsis.className = 'page-ellipsis';
+        ellipsis.textContent = '•••';
+        pager.appendChild(ellipsis);
+        pager.appendChild(makePageBtn(totalPages, true));
+      }
     }
 
     var nextBtn = document.createElement('button');
@@ -232,8 +272,15 @@
     nextBtn.style.transform = 'rotate(-90deg)';
     nextBtn.innerHTML = chevronSvg();
     nextBtn.disabled = page >= totalPages;
-    nextBtn.addEventListener('click', function(){ location.href = 'rank.html?page=' + (page + 1); });
+    nextBtn.addEventListener('click', function(){ goToPage(page + 1); });
     pager.appendChild(nextBtn);
+
+    var lastBtn = document.createElement('button');
+    lastBtn.className = 'page-arrow jump';
+    lastBtn.innerHTML = lastSvg();
+    lastBtn.disabled = page >= totalPages;
+    lastBtn.addEventListener('click', function(){ goToPage(totalPages); });
+    pager.appendChild(lastBtn);
   });
 
   document.getElementById('homeBtn').addEventListener('click', function(){
