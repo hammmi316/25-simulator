@@ -107,7 +107,16 @@ window.JGB_GAME = (function(){
     return window.JGB_DB.getDoc(ref).then(function(snap){
       if(!snap.exists()) return null;
       var entry = snap.data();
-      var q = window.JGB_DB.query(leaderboardCol(), window.JGB_DB.where('tries', '<', entry.tries));
+      // endBefore(snap) reproduces Firestore's own tiebreak (document id)
+      // for entries with an identical tries value, so the count here
+      // matches this entry's exact position in the orderBy('tries') list
+      // that getLeaderboardPage renders — not just "how many have fewer tries".
+      var q = window.JGB_DB.query(
+        leaderboardCol(),
+        window.JGB_DB.orderBy('tries', 'asc'),
+        window.JGB_DB.orderBy(window.JGB_DB.documentId()),
+        window.JGB_DB.endBefore(snap)
+      );
       return window.JGB_DB.getCountFromServer(q).then(function(countSnap){
         return { rank: countSnap.data().count + 1, entry: entry };
       });

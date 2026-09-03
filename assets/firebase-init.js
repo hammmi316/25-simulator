@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
 import {
-  getFirestore, collection, doc, getDoc, setDoc, getDocs,
-  query, where, orderBy, limit, getCountFromServer
+  getFirestore, collection, doc, documentId, getDoc, setDoc, getDocs,
+  query, where, orderBy, limit, endBefore, getCountFromServer
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 var firebaseConfig = {
@@ -17,6 +17,7 @@ var app = initializeApp(firebaseConfig);
 
 window.JGB_DB = {
   db: getFirestore(app),
-  collection: collection, doc: doc, getDoc: getDoc, setDoc: setDoc, getDocs: getDocs,
-  query: query, where: where, orderBy: orderBy, limit: limit, getCountFromServer: getCountFromServer
+  collection: collection, doc: doc, documentId: documentId, getDoc: getDoc, setDoc: setDoc, getDocs: getDocs,
+  query: query, where: where, orderBy: orderBy, limit: limit, endBefore: endBefore,
+  getCountFromServer: getCountFromServer
 };
