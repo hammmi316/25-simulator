@@ -74,11 +74,8 @@ window.JGB_GAME = (function(){
   }
   function submitResult(entry){
     var ref = leaderboardDocRef(entry.nickname, entry.server);
-    return window.JGB_DB.getDoc(ref).then(function(snap){
-      if(!snap.exists() || entry.tries < snap.data().tries){
-        return window.JGB_DB.setDoc(ref, entry);
-      }
-    }).catch(function(e){ console.error('submitResult failed', e); });
+    return window.JGB_DB.setDoc(ref, entry)
+      .catch(function(e){ console.error('submitResult failed', e); });
   }
   function getLeaderboardCount(){
     var q = window.JGB_DB.query(leaderboardCol());
