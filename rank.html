@@ -14,17 +14,23 @@
     text-align:center;
     font-weight:700;
     font-size:5.089cqw;
-    color:#dedede;
+    color:#fff8e6;
     text-shadow:0 0.509cqw 0.509cqw rgba(0,0,0,0.25);
+  }
+  .rank-divider{
+    position:absolute;
+    left:-24.682cqw; top:10.433cqw;
+    width:149.364cqw; height:26.845cqw;
+    pointer-events:none;
   }
   .rank-summary{
     position:absolute;
-    left:0; top:26.590cqw;
+    left:0; top:32.697cqw;
     width:100cqw;
     margin:0;
     text-align:center;
     font-weight:500;
-    font-size:3.563cqw;
+    font-size:3.053cqw;
     line-height:1.5;
     color:#8c8c8c;
     text-shadow:0 0.509cqw 0.509cqw rgba(0,0,0,0.25);
@@ -32,7 +38,7 @@
 
   .rank-table{
     position:absolute;
-    left:5.089cqw; top:41.349cqw;
+    left:5.089cqw; top:46.692cqw;
     width:89.822cqw;
   }
   .rank-row{
@@ -70,7 +76,7 @@
 
   .pagination{
     position:absolute;
-    left:5.089cqw; top:167.557cqw;
+    left:5.089cqw; top:170.865cqw;
     width:89.822cqw;
     display:flex; align-items:center; justify-content:center;
     gap:2.036cqw;
@@ -107,6 +113,7 @@
 <div class="viewport">
   <div class="frame">
     <h1 class="rank-title">전체 순위</h1>
+    <img class="rank-divider" src="assets/divider.webp" alt="" />
     <p class="rank-summary" id="rankSummary"></p>
 
     <div class="rank-table" id="rankTable">
@@ -151,7 +158,7 @@
   if(!page || page < 1) page = 1;
 
   document.getElementById('rankSummary').innerHTML =
-    '순위는 ' + G.MAX_LEADERBOARD_RANK + '위까지 표시됩니다.<br>' +
+    '가장 최근에 시도한 강화가 순위에 표시됩니다.<br>' +
     '매주 수요일 오전 10시에 초기화됩니다.';
 
   function iconSrc(job){
