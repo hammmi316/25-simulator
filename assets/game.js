@@ -62,7 +62,7 @@ window.JGB_GAME = (function(){
     return run;
   }
   var LEADERBOARD_COLLECTION = 'leaderboard';
-  var MAX_LEADERBOARD_RANK = 999;
+  var MAX_LEADERBOARD_RANK = 1000;
   function leaderboardDocId(nickname, server){
     return encodeURIComponent(nickname) + '__' + encodeURIComponent(server);
   }

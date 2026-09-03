@@ -142,8 +142,8 @@
   if(!page || page < 1) page = 1;
 
   document.getElementById('rankSummary').innerHTML =
-    '평균 강화 시도 횟수는 ' + Math.round(G.AVG_TRIES) + '회,<br>' +
-    '전체 장기백 비율은 ' + G.JANGIBAEK_RATE.toFixed(1) + '% 입니다.';
+    '순위는 ' + G.MAX_LEADERBOARD_RANK + '위까지 표시됩니다.<br>' +
+    '매주 수요일 오전 10시에 초기화됩니다.';
 
   function iconSrc(job){
     return 'assets/icons/' + encodeURIComponent(job || '') + '.png';
