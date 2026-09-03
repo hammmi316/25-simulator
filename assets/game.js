@@ -62,29 +62,56 @@ window.JGB_GAME = (function(){
     return run;
   }
   var LEADERBOARD_COLLECTION = 'leaderboard';
+  var MAX_LEADERBOARD_RANK = 999;
   function leaderboardDocId(nickname, server){
     return encodeURIComponent(nickname) + '__' + encodeURIComponent(server);
   }
-  function getLeaderboard(){
-    return window.JGB_DB.collection(LEADERBOARD_COLLECTION)
-      .orderBy('tries', 'asc')
-      .limit(999)
-      .get()
-      .then(function(snap){
-        var list = [];
-        snap.forEach(function(doc){ list.push(doc.data()); });
-        return list;
-      })
-      .catch(function(e){ console.error('getLeaderboard failed', e); return []; });
+  function leaderboardCol(){
+    return window.JGB_DB.collection(window.JGB_DB.db, LEADERBOARD_COLLECTION);
+  }
+  function leaderboardDocRef(nickname, server){
+    return window.JGB_DB.doc(window.JGB_DB.db, LEADERBOARD_COLLECTION, leaderboardDocId(nickname, server));
   }
   function submitResult(entry){
-    var ref = window.JGB_DB.collection(LEADERBOARD_COLLECTION)
-      .doc(leaderboardDocId(entry.nickname, entry.server));
-    return ref.get().then(function(doc){
-      if(!doc.exists || entry.tries < doc.data().tries){
-        return ref.set(entry);
+    var ref = leaderboardDocRef(entry.nickname, entry.server);
+    return window.JGB_DB.getDoc(ref).then(function(snap){
+      if(!snap.exists() || entry.tries < snap.data().tries){
+        return window.JGB_DB.setDoc(ref, entry);
       }
     }).catch(function(e){ console.error('submitResult failed', e); });
+  }
+  function getLeaderboardCount(){
+    var q = window.JGB_DB.query(leaderboardCol());
+    return window.JGB_DB.getCountFromServer(q)
+      .then(function(snap){ return Math.min(snap.data().count, MAX_LEADERBOARD_RANK); })
+      .catch(function(e){ console.error('getLeaderboardCount failed', e); return 0; });
+  }
+  function getLeaderboardPage(page, pageSize){
+    var limitCount = Math.min(page * pageSize, MAX_LEADERBOARD_RANK);
+    var q = window.JGB_DB.query(
+      leaderboardCol(),
+      window.JGB_DB.orderBy('tries', 'asc'),
+      window.JGB_DB.limit(limitCount)
+    );
+    return window.JGB_DB.getDocs(q)
+      .then(function(snap){
+        var all = [];
+        snap.forEach(function(doc){ all.push(doc.data()); });
+        var start = (page - 1) * pageSize;
+        return all.slice(start, start + pageSize);
+      })
+      .catch(function(e){ console.error('getLeaderboardPage failed', e); return []; });
+  }
+  function getMyRank(nickname, server){
+    var ref = leaderboardDocRef(nickname, server);
+    return window.JGB_DB.getDoc(ref).then(function(snap){
+      if(!snap.exists()) return null;
+      var entry = snap.data();
+      var q = window.JGB_DB.query(leaderboardCol(), window.JGB_DB.where('tries', '<', entry.tries));
+      return window.JGB_DB.getCountFromServer(q).then(function(countSnap){
+        return { rank: countSnap.data().count + 1, entry: entry };
+      });
+    }).catch(function(e){ console.error('getMyRank failed', e); return null; });
   }
 
   function percentile(tries){
@@ -107,6 +134,8 @@ window.JGB_GAME = (function(){
     pAt: pAt,
     getRun: getRun, setRun: setRun, startRun: startRun, getOrStartRun: getOrStartRun,
     attemptOnce: attemptOnce, resolveAuto: resolveAuto, percentile: percentile,
-    getLeaderboard: getLeaderboard, submitResult: submitResult
+    MAX_LEADERBOARD_RANK: MAX_LEADERBOARD_RANK,
+    submitResult: submitResult, getLeaderboardCount: getLeaderboardCount,
+    getLeaderboardPage: getLeaderboardPage, getMyRank: getMyRank
   };
 })();

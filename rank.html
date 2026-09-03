@@ -1,9 +1,8 @@
+<meta charset="utf-8">
 <title>전체 순위 - 무기 25강 시뮬레이터</title>
 <link rel="stylesheet" href="assets/common.css" />
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
-<script src="assets/firebase-init.js"></script>
-<script src="assets/game.js"></script>
+<script type="module" src="assets/firebase-init.js"></script>
+<script type="module" src="assets/game.js"></script>
 <style>
   .frame{ background:#08070a; }
 
@@ -132,12 +131,11 @@
   </div>
 </div>
 
-<script>
+<script type="module">
 (function(){
   "use strict";
   var G = window.JGB_GAME;
   var PAGE_SIZE = 10;
-  var MAX_RANK = 999;
 
   var params = new URLSearchParams(location.search);
   var page = parseInt(params.get('page'), 10);
@@ -175,30 +173,33 @@
     return '<svg viewBox="0 0 25 15" fill="none"><path d="M2 2L12.5 12L23 2" stroke="#dedede" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   }
 
-  G.getLeaderboard().then(function(fullList){
-    var list = fullList.slice(0, MAX_RANK);
-    var totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+  G.getLeaderboardCount().then(function(count){
+    var totalPages = Math.max(1, Math.ceil(count / PAGE_SIZE));
     if(page > totalPages) page = totalPages;
 
+    return Promise.all([
+      count === 0 ? [] : G.getLeaderboardPage(page, PAGE_SIZE),
+      (session && session.nickname) ? G.getMyRank(session.nickname, session.server) : null,
+      totalPages
+    ]);
+  }).then(function(results){
+    var pageItems = results[0];
+    var myRank = results[1];
+    var totalPages = results[2];
+
     var meRowEl = document.getElementById('rankMeRow');
-    if(session && session.nickname){
-      var myIndex = list.findIndex(function(e){
-        return e.nickname === session.nickname && e.server === session.server;
-      });
-      if(myIndex !== -1){
-        meRowEl.appendChild(makeRow(myIndex + 1, list[myIndex], true));
-      }
+    if(myRank){
+      meRowEl.appendChild(makeRow(myRank.rank, myRank.entry, true));
     }
 
     var rowsEl = document.getElementById('rankRows');
-    if(list.length === 0){
+    if(pageItems.length === 0){
       var empty = document.createElement('div');
       empty.className = 'rank-empty';
       empty.textContent = '아직 순위 기록이 없습니다.';
       rowsEl.appendChild(empty);
     }else{
       var start = (page - 1) * PAGE_SIZE;
-      var pageItems = list.slice(start, start + PAGE_SIZE);
       pageItems.forEach(function(entry, i){
         rowsEl.appendChild(makeRow(start + i + 1, entry, false));
       });

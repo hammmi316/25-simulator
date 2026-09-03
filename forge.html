@@ -1,12 +1,11 @@
+<meta charset="utf-8">
 <title>장비 재련 - 무기 25강 시뮬레이터</title>
 <script>
   if (!sessionStorage.getItem('jgb_session')) { location.href = 'login.html'; }
 </script>
 <link rel="stylesheet" href="assets/common.css" />
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
-<script src="assets/firebase-init.js"></script>
-<script src="assets/game.js"></script>
+<script type="module" src="assets/firebase-init.js"></script>
+<script type="module" src="assets/game.js"></script>
 <style>
   .bg{
     position:absolute; left:0; top:0;
@@ -91,7 +90,7 @@
   </div>
 </div>
 
-<script>
+<script type="module">
 (function(){
   "use strict";
   var G = window.JGB_GAME;

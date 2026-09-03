@@ -1,12 +1,11 @@
+<meta charset="utf-8">
 <title>재련 성공 - 무기 25강 시뮬레이터</title>
 <script>
   if (!sessionStorage.getItem('jgb_session') || !sessionStorage.getItem('jgb_run')) { location.href = 'forge.html'; }
 </script>
 <link rel="stylesheet" href="assets/common.css" />
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
-<script src="assets/firebase-init.js"></script>
-<script src="assets/game.js"></script>
+<script type="module" src="assets/firebase-init.js"></script>
+<script type="module" src="assets/game.js"></script>
 <style>
   .frame{ background:#08070a; }
 
@@ -65,7 +64,7 @@
   </div>
 </div>
 
-<script>
+<script type="module">
 (function(){
   "use strict";
   var G = window.JGB_GAME;
